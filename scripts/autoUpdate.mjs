@@ -1,80 +1,71 @@
-import fs from "fs";
-import path from "path";
-import fetch from "node-fetch";
-import dotenv from "dotenv";
-dotenv.config();
+import fs from 'fs';
+import path from 'path';
+import fetch from 'node-fetch';
+import 'dotenv/config';
 
 const HF_TOKEN = process.env.HF_TOKEN;
-if (!HF_TOKEN) throw new Error("HF_TOKEN missing in .env");
+const MODEL_ID = process.env.MODEL_ID;
 
-// List of files to update
+if (!HF_TOKEN) throw new Error("HF_TOKEN missing in .env");
+if (!MODEL_ID) throw new Error("MODEL_ID missing in .env");
+
+// List of files to auto-update
 const filesToUpdate = [
-  "src/screens/HomeScreen.tsx",
-  "src/components/ChatInput.tsx",
-  "src/components/ChatOutput.tsx",
-  "src/ai/AIMain.ts",
-  "src/ai/AISafety.ts",
-  "src/ai/AIUtils.ts",
-  "src/utils/Constants.ts",
-  "src/utils/Helpers.ts",
+  'src/screens/HomeScreen.tsx',
+  'src/components/ChatInput.tsx',
+  'src/components/ChatOutput.tsx',
+  'src/ai/AIMain.ts',
+  'src/ai/AISafety.ts',
+  'src/ai/AIUtils.ts',
+  'src/utils/Constants.ts',
+  'src/utils/Helpers.ts'
 ];
 
-// Function to generate new code from the AI
-async function generateCode(fileContent, filePath) {
-  const prompt = `
-You are an AI assistant. Update the following file content if needed:
-File: ${filePath}
-Current content:
-${fileContent}
+async function updateFile(filePath) {
+  const absolutePath = path.resolve(filePath);
+  let content = fs.readFileSync(absolutePath, 'utf-8');
 
-Return only valid code for this file.
-`;
-  
-  const response = await fetch("https://api-inference.huggingface.co/routers/text-generation", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${HF_TOKEN}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model: "tiiuae/falcon-7b-instruct",
-      inputs: prompt,
-      max_new_tokens: 200,
-      temperature: 0.2
-    })
-  });
+  try {
+    const response = await fetch(`https://api-inference.huggingface.co/models/${MODEL_ID}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${HF_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        inputs: `Update this code intelligently: ${content}`
+      })
+    });
 
-  const data = await response.json();
-  if (!data || !data[0]?.generated_text) {
-    throw new Error("HF API returned invalid response");
+    const result = await response.json();
+
+    if (!result || !result[0] || !result[0].generated_text) {
+      console.log(`❌ Error updating ${filePath}:`, JSON.stringify(result));
+      return;
+    }
+
+    const updated = result[0].generated_text;
+    fs.writeFileSync(absolutePath, `// AUTO-UPDATED: ${new Date().toISOString()}\n${updated}`);
+    console.log(`✅ Updated: ${filePath}`);
+  } catch (err) {
+    console.log(`❌ Error updating ${filePath}:`, err.message);
   }
-  return data[0].generated_text;
 }
 
-// Main update loop
 (async () => {
-  for (const filePath of filesToUpdate) {
-    try {
-      const fullPath = path.resolve(filePath);
-      const content = fs.readFileSync(fullPath, "utf-8");
-      const updatedContent = await generateCode(content, filePath);
-
-      fs.writeFileSync(fullPath, updatedContent);
-      console.log(`✅ Updated: ${filePath}`);
-    } catch (err) {
-      console.log(`❌ Error updating ${filePath}:`, err.message);
-    }
+  for (const file of filesToUpdate) {
+    await updateFile(file);
   }
 
-  // Auto git commit & push
-  const { execSync } = await import("child_process");
+  // Auto git commit + push
+  const { execSync } = await import('child_process');
   try {
-    execSync('git add .', { stdio: "inherit" });
-    execSync('git commit -m "Auto-update by AI script"', { stdio: "inherit" });
-    execSync('git push', { stdio: "inherit" });
-    console.log("✅ Changes committed and pushed to GitHub.");
+    execSync('git add .', { stdio: 'inherit' });
+    execSync('git commit -m "Auto-update by AI script"', { stdio: 'inherit' });
+    execSync('git push', { stdio: 'inherit' });
+    console.log('✅ Changes committed and pushed to GitHub.');
   } catch (err) {
-    console.log("❌ Git error:", err.message);
+    console.log('⚠️ Git push failed:', err.message);
   }
 })();
 
