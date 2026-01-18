@@ -1,0 +1,28 @@
+// AUTO-UPDATED: 2026-01-18T20:48:23.894Z
+// AUTO-UPDATED: 2026-01-18T20:46:46.887Z
+// Auto-updated on 2026-01-18T20:42:22.167Z
+// [AUTOUPDATE] File updated by automation script
+// Updated by AI automation
+import React, { useState } from 'react';
+import ChatInput from '../components/ChatInput';
+import ChatOutput from '../components/ChatOutput';
+
+const HomeScreen: React.FC = () => {
+  const [messages, setMessages] = useState<string[]>([]);
+
+  const handleSend = (msg: string) => {
+    if (!msg) return;
+    setMessages([...messages, `You: ${msg}`, `AI: (placeholder response)`]);
+  };
+
+  return (
+    <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
+      <h1>AchieveAI Chat</h1>
+      <ChatOutput messages={messages} />
+      <ChatInput onSend={handleSend} />
+    </div>
+  );
+};
+
+export default HomeScreen;
+

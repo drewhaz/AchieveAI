@@ -1,0 +1,31 @@
+// AUTO-UPDATED: 2026-01-18T20:48:23.915Z
+// AUTO-UPDATED: 2026-01-18T20:46:46.913Z
+// Auto-updated on 2026-01-18T20:42:22.192Z
+// [AUTOUPDATE] File updated by automation script
+// Updated by AI automation
+import React from 'react';
+
+interface ChatOutputProps {
+  messages: string[];
+}
+
+const ChatOutput: React.FC<ChatOutputProps> = ({ messages }) => {
+  return (
+    <div
+      style={{
+        border: '1px solid #ccc',
+        padding: '10px',
+        minHeight: '200px',
+        maxHeight: '400px',
+        overflowY: 'auto',
+      }}
+    >
+      {messages.map((msg, i) => (
+        <p key={i} style={{ margin: '4px 0' }}>{msg}</p>
+      ))}
+    </div>
+  );
+};
+
+export default ChatOutput;
+

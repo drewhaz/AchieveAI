@@ -1,0 +1,12 @@
+// AUTO-UPDATED: 2026-01-18T20:46:46.914Z
+// Auto-updated on 2026-01-18T20:42:22.193Z
+// [AUTOUPDATE] File updated by automation script
+export function checkSafety(input: string): boolean {
+  // Basic safety check example
+  const bannedWords = ['hack', 'illegal', 'self-harm'];
+  for (const word of bannedWords) {
+    if (input.toLowerCase().includes(word)) return false;
+  }
+  return true;
+}
+

@@ -1,0 +1,37 @@
+// AUTO-UPDATED: 2026-01-18T20:48:23.914Z
+// AUTO-UPDATED: 2026-01-18T20:46:46.912Z
+// Auto-updated on 2026-01-18T20:42:22.191Z
+// [AUTOUPDATE] File updated by automation script
+// Updated by AI automation
+import React, { useState } from 'react';
+
+interface ChatInputProps {
+  onSend: (msg: string) => void;
+}
+
+const ChatInput: React.FC<ChatInputProps> = ({ onSend }) => {
+  const [input, setInput] = useState('');
+
+  const handleSend = () => {
+    onSend(input);
+    setInput('');
+  };
+
+  return (
+    <div style={{ marginTop: '20px' }}>
+      <input
+        type="text"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder="Type a message..."
+        style={{ width: '80%', padding: '8px' }}
+      />
+      <button onClick={handleSend} style={{ padding: '8px 12px', marginLeft: '8px' }}>
+        Send
+      </button>
+    </div>
+  );
+};
+
+export default ChatInput;
+
