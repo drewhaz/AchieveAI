@@ -11,7 +11,7 @@ const MODEL_ID = process.env.MODEL_ID;
 if (!HF_TOKEN) throw new Error("HF_API_KEY missing in .env");
 if (!MODEL_ID) throw new Error("MODEL_ID missing in .env");
 
-const ROUTER_URL = `https://router.huggingface.co/routers/${MODEL_ID}/default`;
+const ROUTER_URL = `https://router.huggingface.co/models/${MODEL_ID}`;
 
 async function queryHF(prompt) {
   const res = await fetch(ROUTER_URL, {
